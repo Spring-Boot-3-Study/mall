@@ -26,9 +26,11 @@ dependencies {
 	"developmentOnly"("org.springframework.boot:spring-boot-devtools")
 
 	implementation("org.projectlombok:lombok")
+	annotationProcessor("org.projectlombok:lombok")
 
-//	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 //	runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	runtimeOnly("com.h2database:h2")
 }
 
 tasks.withType<Test> {
