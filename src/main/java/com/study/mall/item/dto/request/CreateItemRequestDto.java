@@ -1,4 +1,4 @@
-package com.study.mall.item.dto.etc;
+package com.study.mall.item.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor
-public class ItemUpdateDto {
+public class CreateItemRequestDto {
 
     private String itemName;
 

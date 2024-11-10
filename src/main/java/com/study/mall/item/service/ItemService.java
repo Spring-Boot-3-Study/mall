@@ -1,13 +1,20 @@
 package com.study.mall.item.service;
 
+import com.study.mall.common.dto.PageResponseDto;
 import com.study.mall.common.exception.NotExistsItemIdException;
 import com.study.mall.item.dto.etc.ItemUpdateDto;
 import com.study.mall.item.entity.ItemEntity;
 import com.study.mall.item.repository.ItemRepository;
 import com.study.mall.item.vo.ItemVo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +39,43 @@ public class ItemService {
                 .build();
 
         itemRepository.save(itemEntity);
+    }
+
+    /**
+     * 상품 다중 조회
+     * @param page 페이지
+     * @param size 사이즈
+     * @param orderBy 정렬 조건
+     * @param order 정렬 방향
+     * @return 상품 정보 Vo 목록
+     */
+    @Transactional(readOnly = true)
+    public PageResponseDto<List<ItemVo>> getItems(Integer page, Integer size, String orderBy, String order) {
+
+        Sort sort = Sort.by(order.equalsIgnoreCase("desc") ? Sort.Order.desc(orderBy) : Sort.Order.asc(orderBy));
+
+        Pageable pageable = PageRequest.of(Math.max(0, page - 1), size, sort);
+
+        Page<ItemEntity> itemPageEntities = itemRepository.findAll(pageable);
+
+        List<ItemVo> itemVos = itemPageEntities.stream()
+                .map(itemEntity -> ItemVo.builder()
+                        .itemName(itemEntity.getItemName())
+                        .itemDescription(itemEntity.getItemDescription())
+                        .price(itemEntity.getPrice())
+                        .createdDt(itemEntity.getCreatedDt())
+                        .updatedDt(itemEntity.getUpdatedDt())
+                        .build())
+                .toList();
+
+        return PageResponseDto.<List<ItemVo>>builder()
+                .content(itemVos)
+                .totalCount(itemPageEntities.getTotalElements())
+                .pageNo(itemPageEntities.getNumber() + 1)
+                .pageSize(itemPageEntities.getSize())
+                .totalPages(itemPageEntities.getTotalPages())
+                .isLastPage(itemPageEntities.isLast())
+                .build();
     }
 
     /**
